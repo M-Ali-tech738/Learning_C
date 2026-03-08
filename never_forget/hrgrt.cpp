@@ -1,0 +1,41 @@
+// write a time based greeting system that would greet as per the time given 
+
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+int h, m, n;
+char c;
+bool b=true;
+int k=0;
+cout << "Enter hour (12 hrs format): ";
+cin >> h;
+
+cout << "Enter am or pm ";
+cin >> c;
+
+if(c=='am'){
+n=1;
+}
+else if(c=='pm'){
+n=0;
+}
+
+while(k==0){
+if(c!="am" || c!="pm"){
+cout << "Enter am or pm";
+}
+else 
+k=1;
+cout << endl;
+}
+cout << "Enter minutes: ";
+cin >> m;
+
+cout << endl;
+
+return 0;
+}
+

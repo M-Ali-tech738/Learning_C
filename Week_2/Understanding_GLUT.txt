@@ -1,0 +1,22 @@
+What is OpenGL Library ?
+A cross-platform Library consisting a set of functions for graphics display. It enable programs to direclty interact with the GPU/Hardware. It can be used with other programming languages other than C/C++. OpenGL is our rendering engine.
+
+{
+
+OpenGL provides the core graphics functions, GLU builds on OpenGL by adding utility functions to simplify complex operations, and GLUT builds on both to provide window management and input handling, making graphics programming easier.
+
+GLUT
+ ↑
+GLU
+ ↑
+OpenGL (GL)
+ ↑
+GPU
+
+| Library  | Role                     |
+| -------- | ------------------------ |
+| **GL**   | Core graphics rendering  |
+| **GLU**  | Simplifies math & camera |
+| **GLUT** | Window, input, events    |
+
+}
