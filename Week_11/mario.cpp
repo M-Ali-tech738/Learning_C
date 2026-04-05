@@ -1,0 +1,368 @@
+// ============================================================
+//  MARIO GAME  –  OpenGL / GLUT
+//  Teacher's Lab 05 rewritten WITHOUT classes — using functions only
+//
+//  Compile:  g++ mario.cpp -o mario -lGL -lGLU -lglut -lm
+//  Run:      ./mario
+//
+//  FOLDER MUST CONTAIN:
+//    mario.cpp
+//    RGBA.h
+//    MarioStanding.bmp
+//    MarioRun1.bmp
+//    MarioRun2.bmp
+//    MarioRun3.bmp      ← note: Run3, not a second copy of Run1
+//    MarioJump.bmp
+//    bg.bmp
+// ============================================================
+
+#include <GL/glut.h>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include "RGBA.h"
+
+
+// ============================================================
+//  SECTION 1 – GLOBAL SETTINGS
+// ============================================================
+
+const int WIN_W = 640;
+const int WIN_H = 480;
+
+enum LevelType { INTRO, LEVEL1, LEVEL2 };
+LevelType level;
+
+float WL, WR, WB, WT;
+int worldWidth  = 50;
+int worldHeight = 50;
+
+enum ModeType  { STAY, RUN, JUMP, DEAD };
+enum StateType { STANDING, RUNNING1, RUNNING2, RUNNING3, JUMPING, DYING };
+
+ModeType  marioMode  = STAY;
+StateType marioState = STANDING;
+
+float marioX = 0.0f;
+float marioY = 0.0f;
+
+// ── Images ───────────────────────────────────────────────────
+// pix[0] = standing
+// pix[1] = run frame 1
+// pix[2] = run frame 2
+// pix[3] = run frame 3      ← FIX: was MarioRun1 again (wrong)
+// pix[4] = jump
+// pix[5] = background       ← FIX: added dedicated background slot
+#define NUM_IMAGES 6          // FIX: was 5, needs 6 for background
+RGBApixmap pix[NUM_IMAGES];
+
+
+// ============================================================
+//  SECTION 2 – LOAD IMAGES
+// ============================================================
+void loadMarioImages() {
+    pix[0].readBMPFile("MarioStanding.bmp", 1);
+    pix[1].readBMPFile("MarioRun1.bmp",     1);
+    pix[2].readBMPFile("MarioRun2.bmp",     1);
+    pix[3].readBMPFile("MarioRun3.bmp",     1);  // FIX: was MarioRun1 (copy/paste error)
+    pix[4].readBMPFile("MarioJump.bmp",     1);
+    pix[5].readBMPFile("bg.bmp",            1);  // FIX: background in its own slot
+
+    // Make grey (192,192,192) pixels transparent in Mario sprites only
+    // (background has no chroma key)
+    for (int i = 0; i < 5; i++)
+        pix[i].setChromaKey(192, 192, 192);
+}
+
+
+// ============================================================
+//  SECTION 3 – MARIO POSITION FUNCTIONS
+// ============================================================
+void changePosition(float dx, float dy) {
+    marioX += dx;
+    marioY += dy;
+}
+
+void setPosition(float x, float y) {
+    marioX = x;
+    marioY = y;
+}
+
+
+// ============================================================
+//  SECTION 4 – CHANGE MODE
+// ============================================================
+void changeMode(ModeType m) {
+    if (marioMode == m) return;
+
+    switch (m) {
+        case STAY:  marioState = STANDING; break;
+        case RUN:   marioState = RUNNING1; break;
+        case JUMP:  marioState = JUMPING;  break;
+        case DEAD:  marioState = DYING;    break;
+    }
+    marioMode = m;
+}
+
+
+// ============================================================
+//  SECTION 5 – RUN ANIMATION
+// ============================================================
+void runAnimation() {
+    switch (marioState) {
+        case RUNNING1: marioState = RUNNING2; break;
+        case RUNNING2: marioState = RUNNING3; break;
+        case RUNNING3: marioState = RUNNING1; break;
+        default:       marioState = RUNNING1; break;
+    }
+    glRasterPos2f(marioX, marioY);
+    pix[marioState].mDraw();
+}
+
+
+// ============================================================
+//  SECTION 6 – RENDER MARIO
+// ============================================================
+void renderMario() {
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_EQUAL, 1.0f);
+
+    switch (marioMode) {
+        case STAY:
+            glRasterPos2f(marioX, marioY);
+            pix[0].mDraw();
+            break;
+        case RUN:
+            runAnimation();
+            break;
+        case JUMP:
+            glRasterPos2f(marioX, marioY);
+            pix[4].mDraw();
+            break;
+        case DEAD:
+            break;
+    }
+
+    glDisable(GL_ALPHA_TEST);
+}
+
+
+// ============================================================
+//  SECTION 7 – TEXT RENDERING HELPER
+// ============================================================
+void renderBitmapString(float x, float y, void* font, const char* string) {
+    const char* c;
+    glRasterPos2f(x, y);
+    for (c = string; *c != '\0'; c++)
+        glutBitmapCharacter(font, *c);
+}
+
+
+// ============================================================
+//  SECTION 8 – INTRO SCREEN
+// ============================================================
+void introScreen() {
+    char buf[100] = {0};
+
+    glColor3f(1.0f, 0.85f, 0.2f);
+    sprintf(buf, "MARIO  GAME");
+    renderBitmapString(-70, 20, GLUT_BITMAP_TIMES_ROMAN_24, buf);
+
+    glColor3f(1.0f, 1.0f, 1.0f);
+    sprintf(buf, "By: Muhammad Ali");
+    renderBitmapString(-55, 5, GLUT_BITMAP_HELVETICA_18, buf);
+
+    glColor3f(0.8f, 0.8f, 0.8f);
+    sprintf(buf, "Use Arrow Keys to move");
+    renderBitmapString(-65, -15, GLUT_BITMAP_HELVETICA_12, buf);
+
+    sprintf(buf, "Press S to start");
+    renderBitmapString(-50, -25, GLUT_BITMAP_HELVETICA_12, buf);
+}
+
+
+// ============================================================
+//  SECTION 9 – RENDER BITMAP HELPER
+// ============================================================
+void renderBitmap(float x, float y, int imgId) {
+    glRasterPos2f(x, y);
+    pix[imgId].mDraw();
+}
+
+
+// ============================================================
+//  SECTION 10 – myInit()
+// ============================================================
+void myInit() {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    glViewport(0, 0, WIN_W, WIN_H);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(WL, WR, WB, WT);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+
+// ============================================================
+//  SECTION 11 – DISPLAY
+// ============================================================
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+    switch (level) {
+
+        case INTRO:
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluOrtho2D(WL, WR, WB, WT);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+            introScreen();
+            break;
+
+        case LEVEL1: {
+            // FIX: camera stays at WL/WR — Mario moves within it.
+            // The original code shifted the camera by worldWidth every
+            // frame, which moved Mario off-screen immediately.
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            gluOrtho2D(WL, WR, WB, WT);   // FIX: use original bounds, not shifted ones
+            glMatrixMode(GL_MODELVIEW);
+            glLoadIdentity();
+
+            glClearColor(0.5f, 0.8f, 1.0f, 1.0f);  // sky blue
+
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_EQUAL, 1.0f);
+
+            // FIX: draw background using pix[5] (bg slot), not pix[0] (Mario sprite)
+            renderBitmap(WL, WB, 5);
+
+            renderMario();
+
+            glDisable(GL_ALPHA_TEST);
+            break;
+        }
+
+        case LEVEL2:
+            break;
+    }
+
+    glutSwapBuffers();
+}
+
+
+// ============================================================
+//  SECTION 12 – KEYBOARD: ARROW KEYS (press)
+// ============================================================
+void pressKeySpecial(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_LEFT:
+            changePosition(-5, 0);
+            changeMode(RUN);
+            break;
+        case GLUT_KEY_RIGHT:
+            changePosition(5, 0);
+            changeMode(RUN);
+            break;
+        case GLUT_KEY_UP:
+            if (marioY < 20)
+                changePosition(0, 10);
+            changeMode(JUMP);
+            break;
+        case GLUT_KEY_DOWN:
+            break;
+    }
+    glutPostRedisplay();
+}
+
+
+// ============================================================
+//  SECTION 13 – KEYBOARD: ARROW KEYS (release)
+// ============================================================
+void releaseKeySpecial(int key, int x, int y) {
+    switch (key) {
+        case GLUT_KEY_LEFT:
+        case GLUT_KEY_RIGHT:
+            changeMode(STAY);
+            break;
+        case GLUT_KEY_UP:
+            if (marioY != 0)
+                setPosition(marioX, 0);
+            changeMode(STAY);
+            break;
+        case GLUT_KEY_DOWN:
+            break;
+    }
+    glutPostRedisplay();
+}
+
+
+// ============================================================
+//  SECTION 14 – KEYBOARD: REGULAR KEYS
+// ============================================================
+void keyboardHandler(unsigned char key, int x, int y) {
+    switch (key) {
+        case 's':
+        case 'S':
+            level = LEVEL1;
+            // FIX: Mario placed at WL+10, WB+5 within the correct
+            // camera bounds (WL=-100, WR=100 now) so he is visible
+            marioX = WL + 10;
+            marioY = WB + 5;
+            changeMode(STAY);
+            break;
+        case 27:
+            exit(0);
+            break;
+    }
+    glutPostRedisplay();
+}
+
+
+// ============================================================
+//  SECTION 15 – ANIMATION TIMER
+// ============================================================
+void update(int value) {
+    if (marioMode == RUN)
+        glutPostRedisplay();
+
+    glutTimerFunc(100, update, 0);
+}
+
+
+// ============================================================
+//  SECTION 16 – MAIN
+// ============================================================
+int main(int argc, char** argv) {
+
+    level = INTRO;
+    // FIX: world was WL=-100, WR=-50 (only 50 units wide, off-centre).
+    // Now WL=-100, WR=100 gives a 200-unit-wide visible world so
+    // Mario starts on-screen and there is room to walk right.
+    WL = -100; WR = 100;   // FIX: was WR=-50 (too narrow, off to the left)
+    WB = -50;  WT =  50;
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+    glutInitWindowSize(WIN_W, WIN_H);
+    glutInitWindowPosition(100, 50);
+    glutCreateWindow("Mario Game");
+
+    loadMarioImages();
+
+    glutDisplayFunc(display);
+    glutSpecialFunc(pressKeySpecial);
+    glutSpecialUpFunc(releaseKeySpecial);
+    glutKeyboardFunc(keyboardHandler);
+
+    glutTimerFunc(100, update, 0);
+
+    myInit();
+    glutMainLoop();
+    return 0;
+}
