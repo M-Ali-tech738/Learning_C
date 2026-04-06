@@ -27,7 +27,7 @@ StateType marioState = STANDING;
 float marioX = 0.0f;
 float marioY = 0.0f;
 
-#define NUM_IMAGES 6          // FIX: was 5, needs 6 for background
+#define NUM_IMAGES 6         
 RGBApixmap pix[NUM_IMAGES];
 
 
