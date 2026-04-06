@@ -35,9 +35,9 @@ void loadMarioImages() {
     pix[0].readBMPFile("MarioStanding.bmp", 1);
     pix[1].readBMPFile("MarioRun1.bmp",     1);
     pix[2].readBMPFile("MarioRun2.bmp",     1);
-    pix[3].readBMPFile("MarioRun3.bmp",     1);  // FIX: was MarioRun1 (copy/paste error)
+    pix[3].readBMPFile("MarioRun3.bmp",     1); 
     pix[4].readBMPFile("MarioJump.bmp",     1);
-    pix[5].readBMPFile("bg.bmp",            1);  // FIX: background in its own slot
+    pix[5].readBMPFile("bg.bmp",            1);  
 
     for (int i = 0; i < 5; i++)
         pix[i].setChromaKey(192, 192, 192);
@@ -159,12 +159,10 @@ void display() {
             break;
 
         case LEVEL1: {
-            // FIX: camera stays at WL/WR — Mario moves within it.
-            // The original code shifted the camera by worldWidth every
-            // frame, which moved Mario off-screen immediately.
+            
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluOrtho2D(WL, WR, WB, WT);   // FIX: use original bounds, not shifted ones
+            gluOrtho2D(WL, WR, WB, WT);  
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 
@@ -173,7 +171,7 @@ void display() {
             glEnable(GL_ALPHA_TEST);
             glAlphaFunc(GL_EQUAL, 1.0f);
 
-            // FIX: draw background using pix[5] (bg slot), not pix[0] (Mario sprite)
+           
             renderBitmap(WL, WB, 5);
 
             renderMario();
@@ -235,8 +233,7 @@ void keyboardHandler(unsigned char key, int x, int y) {
         case 's':
         case 'S':
             level = LEVEL1;
-            // FIX: Mario placed at WL+10, WB+5 within the correct
-            // camera bounds (WL=-100, WR=100 now) so he is visible
+            
             marioX = WL + 10;
             marioY = WB + 5;
             changeMode(STAY);
@@ -258,10 +255,8 @@ void update(int value) {
 int main(int argc, char** argv) {
 
     level = INTRO;
-    // FIX: world was WL=-100, WR=-50 (only 50 units wide, off-centre).
-    // Now WL=-100, WR=100 gives a 200-unit-wide visible world so
-    // Mario starts on-screen and there is room to walk right.
-    WL = -100; WR = 100;   // FIX: was WR=-50 (too narrow, off to the left)
+    
+    WL = -100; WR = 100;   
     WB = -50;  WT =  50;
 
     glutInit(&argc, argv);
