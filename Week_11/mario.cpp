@@ -1,32 +1,9 @@
-// ============================================================
-//  MARIO GAME  –  OpenGL / GLUT
-//  Teacher's Lab 05 rewritten WITHOUT classes — using functions only
-//
-//  Compile:  g++ mario.cpp -o mario -lGL -lGLU -lglut -lm
-//  Run:      ./mario
-//
-//  FOLDER MUST CONTAIN:
-//    mario.cpp
-//    RGBA.h
-//    MarioStanding.bmp
-//    MarioRun1.bmp
-//    MarioRun2.bmp
-//    MarioRun3.bmp      ← note: Run3, not a second copy of Run1
-//    MarioJump.bmp
-//    bg.bmp
-// ============================================================
-
 #include <GL/glut.h>
 #include <cmath>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include "RGBA.h"
-
-
-// ============================================================
-//  SECTION 1 – GLOBAL SETTINGS
-// ============================================================
 
 const int WIN_W = 640;
 const int WIN_H = 480;
@@ -46,21 +23,8 @@ StateType marioState = STANDING;
 
 float marioX = 0.0f;
 float marioY = 0.0f;
-
-// ── Images ───────────────────────────────────────────────────
-// pix[0] = standing
-// pix[1] = run frame 1
-// pix[2] = run frame 2
-// pix[3] = run frame 3      ← FIX: was MarioRun1 again (wrong)
-// pix[4] = jump
-// pix[5] = background       ← FIX: added dedicated background slot
 #define NUM_IMAGES 6          // FIX: was 5, needs 6 for background
 RGBApixmap pix[NUM_IMAGES];
-
-
-// ============================================================
-//  SECTION 2 – LOAD IMAGES
-// ============================================================
 void loadMarioImages() {
     pix[0].readBMPFile("MarioStanding.bmp", 1);
     pix[1].readBMPFile("MarioRun1.bmp",     1);
@@ -76,9 +40,6 @@ void loadMarioImages() {
 }
 
 
-// ============================================================
-//  SECTION 3 – MARIO POSITION FUNCTIONS
-// ============================================================
 void changePosition(float dx, float dy) {
     marioX += dx;
     marioY += dy;
@@ -90,9 +51,6 @@ void setPosition(float x, float y) {
 }
 
 
-// ============================================================
-//  SECTION 4 – CHANGE MODE
-// ============================================================
 void changeMode(ModeType m) {
     if (marioMode == m) return;
 
@@ -106,9 +64,6 @@ void changeMode(ModeType m) {
 }
 
 
-// ============================================================
-//  SECTION 5 – RUN ANIMATION
-// ============================================================
 void runAnimation() {
     switch (marioState) {
         case RUNNING1: marioState = RUNNING2; break;
@@ -121,9 +76,6 @@ void runAnimation() {
 }
 
 
-// ============================================================
-//  SECTION 6 – RENDER MARIO
-// ============================================================
 void renderMario() {
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_EQUAL, 1.0f);
@@ -148,9 +100,7 @@ void renderMario() {
 }
 
 
-// ============================================================
-//  SECTION 7 – TEXT RENDERING HELPER
-// ============================================================
+
 void renderBitmapString(float x, float y, void* font, const char* string) {
     const char* c;
     glRasterPos2f(x, y);
@@ -159,9 +109,6 @@ void renderBitmapString(float x, float y, void* font, const char* string) {
 }
 
 
-// ============================================================
-//  SECTION 8 – INTRO SCREEN
-// ============================================================
 void introScreen() {
     char buf[100] = {0};
 
@@ -182,18 +129,11 @@ void introScreen() {
 }
 
 
-// ============================================================
-//  SECTION 9 – RENDER BITMAP HELPER
-// ============================================================
 void renderBitmap(float x, float y, int imgId) {
     glRasterPos2f(x, y);
     pix[imgId].mDraw();
 }
 
-
-// ============================================================
-//  SECTION 10 – myInit()
-// ============================================================
 void myInit() {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -206,9 +146,6 @@ void myInit() {
 }
 
 
-// ============================================================
-//  SECTION 11 – DISPLAY
-// ============================================================
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -256,9 +193,6 @@ void display() {
 }
 
 
-// ============================================================
-//  SECTION 12 – KEYBOARD: ARROW KEYS (press)
-// ============================================================
 void pressKeySpecial(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_LEFT:
@@ -280,10 +214,6 @@ void pressKeySpecial(int key, int x, int y) {
     glutPostRedisplay();
 }
 
-
-// ============================================================
-//  SECTION 13 – KEYBOARD: ARROW KEYS (release)
-// ============================================================
 void releaseKeySpecial(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_LEFT:
@@ -301,10 +231,6 @@ void releaseKeySpecial(int key, int x, int y) {
     glutPostRedisplay();
 }
 
-
-// ============================================================
-//  SECTION 14 – KEYBOARD: REGULAR KEYS
-// ============================================================
 void keyboardHandler(unsigned char key, int x, int y) {
     switch (key) {
         case 's':
@@ -323,10 +249,6 @@ void keyboardHandler(unsigned char key, int x, int y) {
     glutPostRedisplay();
 }
 
-
-// ============================================================
-//  SECTION 15 – ANIMATION TIMER
-// ============================================================
 void update(int value) {
     if (marioMode == RUN)
         glutPostRedisplay();
@@ -335,9 +257,6 @@ void update(int value) {
 }
 
 
-// ============================================================
-//  SECTION 16 – MAIN
-// ============================================================
 int main(int argc, char** argv) {
 
     level = INTRO;
