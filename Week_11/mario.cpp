@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 #include <GL/glut.h>
 #include <cmath>
 #include <cstdlib>
@@ -5,6 +9,11 @@
 #include <cstring>
 #include "RGBA.h"
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 const int WIN_W = 640;
 const int WIN_H = 480;
 
@@ -23,18 +32,24 @@ StateType marioState = STANDING;
 
 float marioX = 0.0f;
 float marioY = 0.0f;
+<<<<<<< HEAD
 #define NUM_IMAGES 6          // FIX: was 5, needs 6 for background
 RGBApixmap pix[NUM_IMAGES];
+=======
+
+#define NUM_IMAGES 6         
+RGBApixmap pix[NUM_IMAGES];
+
+
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void loadMarioImages() {
     pix[0].readBMPFile("MarioStanding.bmp", 1);
     pix[1].readBMPFile("MarioRun1.bmp",     1);
     pix[2].readBMPFile("MarioRun2.bmp",     1);
-    pix[3].readBMPFile("MarioRun3.bmp",     1);  // FIX: was MarioRun1 (copy/paste error)
+    pix[3].readBMPFile("MarioRun3.bmp",     1); 
     pix[4].readBMPFile("MarioJump.bmp",     1);
-    pix[5].readBMPFile("bg.bmp",            1);  // FIX: background in its own slot
+    pix[5].readBMPFile("bg.bmp",            1);  
 
-    // Make grey (192,192,192) pixels transparent in Mario sprites only
-    // (background has no chroma key)
     for (int i = 0; i < 5; i++)
         pix[i].setChromaKey(192, 192, 192);
 }
@@ -63,7 +78,10 @@ void changeMode(ModeType m) {
     marioMode = m;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void runAnimation() {
     switch (marioState) {
         case RUNNING1: marioState = RUNNING2; break;
@@ -75,7 +93,10 @@ void runAnimation() {
     pix[marioState].mDraw();
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void renderMario() {
     glEnable(GL_ALPHA_TEST);
     glAlphaFunc(GL_EQUAL, 1.0f);
@@ -99,8 +120,11 @@ void renderMario() {
     glDisable(GL_ALPHA_TEST);
 }
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void renderBitmapString(float x, float y, void* font, const char* string) {
     const char* c;
     glRasterPos2f(x, y);
@@ -108,7 +132,10 @@ void renderBitmapString(float x, float y, void* font, const char* string) {
         glutBitmapCharacter(font, *c);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void introScreen() {
     char buf[100] = {0};
 
@@ -128,7 +155,10 @@ void introScreen() {
     renderBitmapString(-50, -25, GLUT_BITMAP_HELVETICA_12, buf);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void renderBitmap(float x, float y, int imgId) {
     glRasterPos2f(x, y);
     pix[imgId].mDraw();
@@ -145,7 +175,10 @@ void myInit() {
     glLoadIdentity();
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -162,12 +195,10 @@ void display() {
             break;
 
         case LEVEL1: {
-            // FIX: camera stays at WL/WR — Mario moves within it.
-            // The original code shifted the camera by worldWidth every
-            // frame, which moved Mario off-screen immediately.
+            
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            gluOrtho2D(WL, WR, WB, WT);   // FIX: use original bounds, not shifted ones
+            gluOrtho2D(WL, WR, WB, WT);  
             glMatrixMode(GL_MODELVIEW);
             glLoadIdentity();
 
@@ -176,7 +207,7 @@ void display() {
             glEnable(GL_ALPHA_TEST);
             glAlphaFunc(GL_EQUAL, 1.0f);
 
-            // FIX: draw background using pix[5] (bg slot), not pix[0] (Mario sprite)
+           
             renderBitmap(WL, WB, 5);
 
             renderMario();
@@ -214,6 +245,10 @@ void pressKeySpecial(int key, int x, int y) {
     glutPostRedisplay();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void releaseKeySpecial(int key, int x, int y) {
     switch (key) {
         case GLUT_KEY_LEFT:
@@ -231,13 +266,16 @@ void releaseKeySpecial(int key, int x, int y) {
     glutPostRedisplay();
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 void keyboardHandler(unsigned char key, int x, int y) {
     switch (key) {
         case 's':
         case 'S':
             level = LEVEL1;
-            // FIX: Mario placed at WL+10, WB+5 within the correct
-            // camera bounds (WL=-100, WR=100 now) so he is visible
+            
             marioX = WL + 10;
             marioY = WB + 5;
             changeMode(STAY);
@@ -256,14 +294,15 @@ void update(int value) {
     glutTimerFunc(100, update, 0);
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 23ce9b7cb295b035773ad1f77c6871bcdf1bff4f
 int main(int argc, char** argv) {
 
     level = INTRO;
-    // FIX: world was WL=-100, WR=-50 (only 50 units wide, off-centre).
-    // Now WL=-100, WR=100 gives a 200-unit-wide visible world so
-    // Mario starts on-screen and there is room to walk right.
-    WL = -100; WR = 100;   // FIX: was WR=-50 (too narrow, off to the left)
+    
+    WL = -100; WR = 100;   
     WB = -50;  WT =  50;
 
     glutInit(&argc, argv);
