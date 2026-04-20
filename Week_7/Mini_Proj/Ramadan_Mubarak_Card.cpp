@@ -1,25 +1,41 @@
 #include <GL/glut.h>
-#include <cmath>
+#include <math.h>
 
-// Function to draw a circle
 void drawCircle(float cx, float cy, float r)
 {
+    int i;
+    float angle, x, y;
     glBegin(GL_POINTS);
-    for(int i = 0; i <= 360; i++)
+    for(i = 0; i <= 360; i++)
     {
-        float angle = i * 3.14159 / 180;
-        float x = cx + r * cos(angle);
-        float y = cy + r * sin(angle);
+        angle = i * 3.14159 / 180.0;
+        x = cx + r * cos(angle);
+        y = cy + r * sin(angle);
         glVertex2f(x, y);
     }
     glEnd();
 }
 
-// Function to draw text
+void drawHeptagon(float cx, float cy, float r)
+{
+    int i;
+    float angle, x, y;
+    glBegin(GL_LINE_LOOP);
+    for(i = 0; i < 7; i++)
+    {
+        angle = i * 2 * 3.14159 / 7.0;
+        x = cx + r * cos(angle);
+        y = cy + r * sin(angle);
+        glVertex2f(x, y);
+    }
+    glEnd();
+}
+
 void drawText(float x, float y, const char* text)
 {
+    int i;
     glRasterPos2f(x, y);
-    for(int i = 0; text[i] != '\0'; i++)
+    for(i = 0; text[i] != '\0'; i++)
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, text[i]);
 }
 
@@ -27,7 +43,7 @@ void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Mosque base
+    /* Mosque base */
     glBegin(GL_POLYGON);
         glVertex2f(-0.6, -0.5);
         glVertex2f( 0.6, -0.5);
@@ -35,27 +51,27 @@ void display()
         glVertex2f(-0.6,  0.0);
     glEnd();
 
-    // Mosque domes
-    drawCircle(0.0, 0.05, 0.25);
+    /* Three domes */
+    drawCircle( 0.0,  0.05, 0.25);
     drawCircle(-0.35, 0.05, 0.15);
     drawCircle( 0.35, 0.05, 0.15);
 
-    // Crescent moon (two circles)
-    drawCircle(-0.7, 0.6, 0.15);
+    /* Crescent moon */
+    drawCircle(-0.7, 0.6,  0.15);
     drawCircle(-0.65, 0.6, 0.12);
 
-    // Stars
+    /* Stars */
     glBegin(GL_LINES);
-        // Star 1
-        glVertex2f(0.6, 0.6); glVertex2f(0.6, 0.65);
+        glVertex2f(0.6,   0.6);   glVertex2f(0.6,   0.65);
         glVertex2f(0.575, 0.625); glVertex2f(0.625, 0.625);
-
-        // Star 2
-        glVertex2f(0.75, 0.55); glVertex2f(0.75, 0.6);
+        glVertex2f(0.75,  0.55);  glVertex2f(0.75,  0.6);
         glVertex2f(0.725, 0.575); glVertex2f(0.775, 0.575);
     glEnd();
 
-    // Text
+    /* Heptagon */
+    drawHeptagon(0.75, -0.3, 0.15);
+
+    /* Text */
     drawText(-0.35, -0.75, "RAMADAN MUBARAK");
     drawText(-0.25, -0.85, "Dr Humera Tariq");
 
@@ -64,11 +80,12 @@ void display()
 
 void init()
 {
-    glClearColor(0.0, 0.0, 0.0, 1.0); // Black background
-    glColor3f(1.0, 1.0, 1.0);         // White drawings
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glColor3f(1.0, 1.0, 1.0);
     glPointSize(2.0);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
 }
 
 int main(int argc, char** argv)
